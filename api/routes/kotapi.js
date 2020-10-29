@@ -6,10 +6,14 @@ const Kots = require(`${__dirname}/../models/kots`);
 
 router.get('/', function (req, res) {
     Kots.find((err, kots) => {
-        if (err) res.status(500).json({ error: err, failed: true, status: 500 });
+        if (err) {
+            res.status(500).json({ error: err, failed: true, status: 500 });
+            return;
+        }
         if (kots) {
             let random = Math.floor(Math.random() * Math.floor(kots.length));
             res.status(200).json({ id: kots[random].id, url: kots[random].url, failed: false, status: 200 });
+            return;
         }
     });
 });
@@ -17,9 +21,11 @@ router.get('/', function (req, res) {
 router.post('/addkot', (req, res) => {
     if (!req.files || !req.files.image) {
         res.status(400).json({ error: "Badly formatted request data", failed: true, status: 400 });
+        return;
     }
     if (req.body.password != process.env.PASSWORD) {
         res.status(401).json({ error: "You don't have sufficient permissions", failed: true, status: 401 });
+        return;
     }
     let kot = new Kots();
 
@@ -30,15 +36,24 @@ router.post('/addkot', (req, res) => {
     if (req.files && req.files.image) {
         if (!fs.existsSync(`${__dirname}/../../kots`)) {
             fs.mkdir(`${__dirname}/../../kots`, (err) => {
-                if (err) res.status(500).json({ error: err, failed: true, status: 500 });
+                if (err) {
+                    res.status(500).json({ error: err, failed: true, status: 500 });
+                    return;
+                }
             });
         }
         fs.writeFileSync(`${__dirname}/../../kots/` + imageName, req.files.image.data, (err) => {
-            if (err) res.status(500).json({ error: err, failed: true, status: 500 });
+            if (err) {
+                res.status(500).json({ error: err, failed: true, status: 500 });
+                return;
+            }
         });
     }
     Kots.find({}, null, { sort: { id: 1 }}, (err, kots) => {
-        if (err) res.status(500).json({ error: err, failed: true, status: 500 });
+        if (err) {
+            res.status(500).json({ error: err, failed: true, status: 500 });
+            return;
+        }
 
         for (let i = 0; i < kots.length; i++) {
             if (kots[i].id != i + 1) {
