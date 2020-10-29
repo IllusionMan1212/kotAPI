@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const imagemin = require("imagemin");
-const imageminJpegtran = require('imagemin-mozjpeg');
 const imageminPngquant = require('imagemin-pngquant');
 const fs = require("fs");
 const imageminMozjpeg = require('imagemin-mozjpeg');
@@ -16,7 +15,7 @@ router.get('/', (req, res) => {
         }
         if (kots) {
             let random = Math.floor(Math.random() * Math.floor(kots.length));
-            res.status(200).json({ id: kots[random].id, url: kots[random].url, failed: false, status: 200 });
+            res.status(200).json({ id: kots[random].id, url: kots[random].url, compressed_url: kots[random].compressed_url, failed: false, status: 200 });
             return;
         }
     });
@@ -109,6 +108,18 @@ router.post('/addkot', (req, res) => {
         return;
     }
     res.status(400).json({ error: "Badly formatted request data", failed: true, status: 400 });
+});
+
+router.get('/:id', (req, res) => {
+    Kots.findById(req.params.id, (err, kot) => {
+        if (err) {
+            res.status(500).json({ error: err, failed: true, status: 500 });
+            return;
+        }
+        if (kot) {
+            res.status(200).json({ id: kot.id, url: kot.url, compressed_url: kot.compressed_url, failed: false, status: 200 });
+        }
+    })
 });
 
 module.exports = router;
