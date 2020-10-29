@@ -30,7 +30,7 @@ router.post('/addkot', (req, res) => {
     let kot = new Kots();
 
     let salt = crypto.randomBytes(16).toString("hex");
-    let extension = req.files.image.name.substring(req.files.image.name.length - 4)
+    let extension = req.files.image.name.substring(req.files.image.name.lastIndexOf("."));
     let imageName = crypto.pbkdf2Sync(req.files.image.name, salt, 1000, 16, "sha512").toString("hex") + extension;
 
     if (req.files && req.files.image) {
@@ -41,6 +41,10 @@ router.post('/addkot', (req, res) => {
                     return;
                 }
             });
+        }
+        while (fs.existsSync(`${__dirname}/../../kots/${imageName}`)) {
+            let another_salt = crypto.randomBytes(16).toString("hex");
+            imageName = crypto.pbkdf2Sync(req.files.image.name, another_salt, 1000, 16, "sha512").toString("hex") + extension;
         }
         fs.writeFileSync(`${__dirname}/../../kots/` + imageName, req.files.image.data, (err) => {
             if (err) {
