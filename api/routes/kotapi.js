@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const webp = require("webp-converter");
+const imagemin = require("imagemin");
+const imageminJpegtran = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
 const fs = require("fs");
+const imageminMozjpeg = require('imagemin-mozjpeg');
 const Kots = require(`${__dirname}/../models/kots`);
 
 router.get('/', (req, res) => {
@@ -42,15 +45,15 @@ router.post('/addkot', (req, res) => {
                     return;
                 }
             });
-            fs.mkdirSync(`${__dirname}/../../kots/webp`, (err) => {
+            fs.mkdirSync(`${__dirname}/../../kots/compressed`, (err) => {
                 if (err) {
                     res.status(500).json({ error: err, failed: true, status: 500 });
                     return;
                 }
             })
         }
-        if (!fs.existsSync(`${__dirname}/../../kots/webp`)) {
-            fs.mkdirSync(`${__dirname}/../../kots/webp`, (err) => {
+        if (!fs.existsSync(`${__dirname}/../../kots/compressed`)) {
+            fs.mkdirSync(`${__dirname}/../../kots/compressed`, (err) => {
                 if (err) {
                     res.status(500).json({ error: err, failed: true, status: 500 });
                     return;
@@ -68,8 +71,16 @@ router.post('/addkot', (req, res) => {
                 return;
             }
         });
-        webp.buffer2webpbuffer(req.files.image.data, extension.toLowerCase().replace(".", ""), "-q 70").then(webpbuffer => {
-            fs.writeFileSync(`${__dirname}/../../kots/webp/` + `${imageName}.webp`, webpbuffer, (err) => {
+        imagemin.buffer(req.files.image.data, {
+            plugins: [
+			imageminMozjpeg({
+                quality: 30
+            }),
+			imageminPngquant({
+				quality: [0.3, 0.4]
+			})
+		]}).then(buffer => {
+            fs.writeFileSync(`${__dirname}/../../kots/compressed/` + `${imageName}${extension}`, buffer, (err) => {
                 if (err) {
                     res.status(500).json({ error: err, failed: true, status: 500 });
                     return;
@@ -91,7 +102,7 @@ router.post('/addkot', (req, res) => {
             }
             kot.id = newId || kots.length + 1;
             kot.url = `${process.env.KOT_BASE_URL}/${imageName}${extension}`;
-            kot.webpurl = `${process.env.KOT_BASE_URL_WEBP}/${imageName}.webp`;
+            kot.compressed_url = `${process.env.KOT_BASE_URL_COMPRESSED}/${imageName}${extension}`;
             kot.save();
         });
         res.status(201).json({ content: { message: "Successfully welcomed a new kot :)" }, failed: false, status: 201 });

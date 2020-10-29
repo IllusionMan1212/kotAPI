@@ -11,7 +11,7 @@ const kotsSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    webp_url: {
+    compressed_url: {
         type: String,
         required: true,
         unique: true,

@@ -15,8 +15,8 @@ router.get('/kots/:kotname', (req, res) => {
     });
 });
 
-router.get('/kots/webp/:kotname', (req, res) => {
-    res.sendFile(`./kots/webp/${req.params.kotname}`, { root: `${__dirname}/../../` }, (err) => {
+router.get('/kots/compressed/:kotname', (req, res) => {
+    res.sendFile(`./kots/compressed/${req.params.kotname}`, { root: `${__dirname}/../../` }, (err) => {
         if (err) {
             if (err.status == 404) {
                 res.status(404).json({ error: "Not found", failed: true, status: 404 });
