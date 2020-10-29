@@ -10,6 +10,7 @@
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
     "express-fileupload": "^1.2.0",
-    "mongoose": "^5.10.7"
+    "mongoose": "^5.10.7",
+    "webp-converter": "^2.3.0"
   }
 }

@@ -10,6 +10,11 @@ const kotsSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    webp_url: {
+        type: String,
+        required: true,
+        unique: true,
     }
 });
 
