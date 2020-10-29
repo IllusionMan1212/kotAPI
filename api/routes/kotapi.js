@@ -111,15 +111,17 @@ router.post('/addkot', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    Kots.findById(req.params.id, (err, kot) => {
+    Kots.findOne({id: req.params.id}, (err, kot) => {
         if (err) {
             res.status(500).json({ error: err, failed: true, status: 500 });
             return;
         }
         if (kot) {
             res.status(200).json({ id: kot.id, url: kot.url, compressed_url: kot.compressed_url, failed: false, status: 200 });
+            return;
         }
-    })
+        res.status(404).json({ error: "Not Found", failed: true, status: 404 });
+    });
 });
 
 module.exports = router;
