@@ -2,12 +2,22 @@ require("dotenv").config({path: `${__dirname}/.env`});
 require(`${__dirname}/api/models/db`);
 const express = require('express');
 const fileupload = require("express-fileupload");
+const ratelimit = require("express-rate-limit");
+const logger = require("morgan");
 
 const apiRouter = require(`${__dirname}/api/routes/kotapi`);
 const kotsRouter = require(`${__dirname}/api/routes/kots`);
 
+const limit = ratelimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    draft_polli_ratelimit_headers: true,
+});
+
 const app = express();
 
+app.use(limit);
+app.use(logger("dev"));
 app.use(fileupload());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
